@@ -1,5 +1,3 @@
-All tools can be used directly to retrieve NYTimes US Politics articles. Support for more data source will be added later.
-
 Install dependencies: `pip install -r requirements.txt`
 
 ### Pipeline
@@ -43,7 +41,8 @@ A simple python command line tool to retrieve indexed text from WARC file.
 ## Usage
 Below is the current list of options, also available by running `./cdx-index-retrieval.py -h`
 ```
-usage: CDX Index Text Retrieval [-h] [-p PROCESSES] dir_index dir_output
+usage: CDX Index Text Retrieval [-h] [-p PROCESSES] [--strip STRIP]
+                                dir_index dir_output
 
 positional arguments:
   dir_index             The path of directory containing index files
@@ -53,11 +52,15 @@ optional arguments:
   -h, --help            show this help message and exit
   -p PROCESSES, --processes PROCESSES
                         Number of worker processes to use; default is 2
+  --strip STRIP         Use stripped url as file name of retrieved text;
+                        default is to strip everything before .com/
 ```
 
 # WARC Parser
 
 A simple python command line tool to parse WARC files.
+
+Custom HTML parser can be passed in using the option `--parser`; it should be a module that contains the `parse` method.
 
 ## Examples
 ```./warc-parser.py /Users/abc/input /Users/abc/output```
@@ -67,7 +70,7 @@ A simple python command line tool to parse WARC files.
 ## Usage
 Below is the current list of options, also available by running `./warc-parser.py -h`
 ```
-usage: WARC-Parser [-h] [-p PROCESSES] dir_warc dir_output
+usage: WARC Parser [-h] [-p PROCESSES] [--parser PARSER] dir_warc dir_output
 
 positional arguments:
   dir_warc              The path of directory containing WARC files
@@ -77,4 +80,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -p PROCESSES, --processes PROCESSES
                         Number of worker processes to use; default is 2
+  --parser PARSER       The module used to parse HTML body; default is parser-
+                        nytimes
 ```

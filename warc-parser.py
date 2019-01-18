@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import logging
-from bs4 import BeautifulSoup
-from datetime import datetime
+from importlib import import_module
 from os import listdir, makedirs
 from os.path import join
 from multiprocessing import Pool
@@ -10,6 +9,7 @@ import errno
 
 DIR_WARC = None
 DIR_OUTPUT = None
+PARSER = None
 
 
 def get_html(warcfile):
@@ -43,65 +43,21 @@ def get_html(warcfile):
             return None
 
 
-def parse_html(warcfile, html):
+def parse_html(filename, html_body, parser):
     """
-    Parse HTML body of NY Times articles.
-    :param warcfile: string of file name starting with date
-    :param html: HTML string
-    :return: string of parsed result: date, headline, article body
+    Parse HTML body.
+    :param filename: the name of the WARC file
+    :param html_body: string of HTML from the WARC file
+    :param parser: the module that contains parse(filename, html_body)
+    :return: None, or string of parsed result
     """
-    def parse_type_1(soup):
-        try:
-            headline = soup.find(id="headline").string.strip()
-
-            paras = [p.getText().strip() for p in soup.find_all("p", class_="story-content")]
-            if len(paras) == 0:
-                return None
-            body = '\n'.join(paras)
-            return headline, body
-        except Exception as e:
-            return None
-
-    def parse_type_2(soup):
-        try:
-            headline = soup.find("h1", {"itemprop": "headline"}).getText().strip()
-
-            paras = [p.getText().strip() for p in soup.find("section", {"itemprop": "articleBody"}).find_all("p")]
-            if len(paras) == 0:
-                return None
-            body = '\n'.join(paras)
-            return headline, body
-        except Exception as e:
-            return None
-
-    def parse_type_3(soup):
-        try:
-            headline = soup.find("h1", {"itemprop": "headline"}).getText().strip()
-
-            paras = []
-            divs = soup.find(id="story").find_all("div", class_="StoryBodyCompanionColumn")
-            for div in divs:
-                paras += [p.getText().strip() for p in div.find_all("p")]
-            if len(paras) == 0:
-                return None
-            body = '\n'.join(paras)
-            return headline, body
-        except Exception as e:
-            return None
-
-    soup_html = BeautifulSoup(html, features="lxml")
-    result = parse_type_1(soup_html)
+    import_module(parser)
+    result = parser.parse(filename, html_body)
     if result is None:
-        result = parse_type_2(soup_html)
-    if result is None:
-        result = parse_type_3(soup_html)
-
-    if result is None:
-        logging.error('Abort %s: error when parsing html' % warcfile)
+        logging.error('Abort %s: error when parsing html' % filename)
         return None
     else:
-        date = warcfile[:len('XXXX-XX-XX')]
-        return date + '\n%s\n\n%s' % result
+        return result
 
 
 def process_warc(warcfile):
@@ -133,11 +89,13 @@ def do_work(num_processes):
 def get_args():
     logging.basicConfig(format='%(asctime)s: [%(levelname)s]: %(message)s', level=logging.INFO)
 
-    parser = ArgumentParser('WARC-Parser')
+    parser = ArgumentParser('WARC Parser')
     parser.add_argument('dir_warc', help='The path of directory containing WARC files')
     parser.add_argument('dir_output', help='The path of output directory')
     parser.add_argument('-p', '--processes', type=int, default=2,
                         help='Number of worker processes to use; default is 2')
+    parser.add_argument('--parser', default='parser-nytimes',
+                        help='The module used to parse HTML body; default is parser-nytimes')
     return parser.parse_args()
 
 
@@ -145,6 +103,7 @@ if __name__ == "__main__":
     args = get_args()
     DIR_WARC = args.dir_warc
     DIR_OUTPUT = args.dir_output
+    PARSER = args.parser
 
     try:
         makedirs(DIR_OUTPUT)

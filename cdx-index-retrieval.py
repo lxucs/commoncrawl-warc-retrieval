@@ -11,6 +11,7 @@ from argparse import ArgumentParser
 
 URL_PREFIX = 'http://commoncrawl.s3.amazonaws.com/'
 DIR_OUTPUT = None
+URL_STRIP = '.com/'
 
 
 def retrieve_indexed_text(index):
@@ -19,8 +20,7 @@ def retrieve_indexed_text(index):
     r = requests.get(URL_PREFIX + index['filename'],
                      headers={'Range': 'bytes=%d-%d' % (byte_start, byte_end)})
 
-    name_strip = 'nytimes.com/'
-    name_output = index['url'][(index['url'].find(name_strip) + len(name_strip)):].replace('/', '-')
+    name_output = index['url'][(index['url'].find(URL_STRIP) + len(URL_STRIP)):].replace('/', '-')
     with open(join(DIR_OUTPUT, name_output), 'wb') as f:
         f.write(zlib.decompress(r.content, 32 + zlib.MAX_WBITS))
     logging.info('Finished retrieving indexed text ' + name_output)
@@ -32,12 +32,12 @@ def do_work(dir_index, num_processes):
     :param num_processes: the number of processes to use
     :return:
     """
-    dict_indices = {}  # Use dict to remove duplicates
+    dict_indices = {}  # Use dict to remove duplicates caused by http/https
     for idx_file in listdir(dir_index):
         if not idx_file.startswith('.'):
             with open(join(dir_index, idx_file), 'r') as f:
                 for index in json.load(f):
-                    key = index['url'][index['url'].find('www.nytimes.com'):]  # Remove http/https
+                    key = index['url'][index['url'].find('://'):]
                     dict_indices[key] = index
 
     indices = dict_indices.values()
@@ -55,6 +55,9 @@ def get_args():
     parser.add_argument('dir_output', help='The path of output directory')
     parser.add_argument('-p', '--processes', type=int, default=2,
                         help='Number of worker processes to use; default is 2')
+    parser.add_argument('--strip', default='.com/',
+                        help='Use stripped url as file name of retrieved text; ' +
+                             'default is to strip everything before .com/')
     return parser.parse_args()
 
 
@@ -62,6 +65,7 @@ if __name__ == "__main__":
     args = get_args()
     DIR_INDEX = args.dir_index
     DIR_OUTPUT = args.dir_output
+    URL_STRIP = args.strip
 
     try:
         makedirs(DIR_OUTPUT)
