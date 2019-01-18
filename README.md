@@ -1,4 +1,4 @@
-All tools can be used directly to retrieve and parse NYTimes US Politics articles. Support for more data source will be added later.
+All tools can be used directly to retrieve NYTimes US Politics articles. Support for more data source will be added later.
 
 Install dependencies: `pip install -r requirements.txt`
 
