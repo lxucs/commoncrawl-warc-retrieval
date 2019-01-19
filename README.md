@@ -3,6 +3,8 @@ Install dependencies: `pip install -r requirements.txt`
 ### Pipeline
 cdx index files -> filtering -> retrieval -> parsing.
 
+For a detailed walkthrough of how to retrieve web pages of specific domain using CommonCrawl index, please see this [article](https://liyanxu.blog/2019/01/19/retrieve-web-pages-using-commoncrawl-index/).
+
 # CommonCrawl Index Filter
 A simple python command line tool for filtering url index from retrieved index files.
 
