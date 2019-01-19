@@ -15,15 +15,18 @@ URL_STRIP = '.com/'
 
 
 def retrieve_indexed_text(index):
-    byte_start = int(index['offset'])
-    byte_end = byte_start + int(index['length']) - 1
-    r = requests.get(URL_PREFIX + index['filename'],
-                     headers={'Range': 'bytes=%d-%d' % (byte_start, byte_end)})
+    try:
+        byte_start = int(index['offset'])
+        byte_end = byte_start + int(index['length']) - 1
+        r = requests.get(URL_PREFIX + index['filename'],
+                         headers={'Range': 'bytes=%d-%d' % (byte_start, byte_end)})
 
-    name_output = index['url'][(index['url'].find(URL_STRIP) + len(URL_STRIP)):].replace('/', '-')
-    with open(join(DIR_OUTPUT, name_output), 'wb') as f:
-        f.write(zlib.decompress(r.content, 32 + zlib.MAX_WBITS))
-    logging.info('Finished retrieving indexed text ' + name_output)
+        name_output = index['url'][(index['url'].find(URL_STRIP) + len(URL_STRIP)):].replace('/', '-')
+        with open(join(DIR_OUTPUT, name_output), 'wb') as f:
+            f.write(zlib.decompress(r.content, 32 + zlib.MAX_WBITS))
+        logging.info('Finished retrieving indexed text ' + name_output)
+    except Exception as e:
+        logging.info('Abort %s: error when retrieving file; %s' % (name_output, str(e)))
 
 
 def do_work(dir_index, num_processes):
