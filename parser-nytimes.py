@@ -48,14 +48,15 @@ def parse(filename, html_body):
             return None
 
     soup_html = BeautifulSoup(html_body, features="lxml")
-    result = parse_type_1(soup_html)
-    if result is None:
-        result = parse_type_2(soup_html)
-    if result is None:
-        result = parse_type_3(soup_html)
+    parse_types = [parse_type_1, parse_type_2, parse_type_3]
+    result = None
+    for parse_type in parse_types:
+        if result:
+            break
+        result = parse_type(soup_html)
 
-    if result is None:
-        return None
-    else:
+    if result:
         date = filename[:len('XXXX-XX-XX')]
         return date + '\n%s\n\n%s' % result
+    else:
+        return None

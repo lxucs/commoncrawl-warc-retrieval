@@ -11,6 +11,8 @@ A simple python command line tool for filtering url index from retrieved index f
 ## Examples
 ```./cdx-index-filter.py /Users/abc/input /Users/abc/output```
 
+```./cdx-index-filter.py /Users/abc/input /Users/abc/output --pattern .*www.nytimes.com/20[\\d/]+/us/politics/.+\\.html$```
+
 ```./cdx-index-filter.py /Users/abc/input /Users/abc/output -p 4``` (using 4 parallel processes)
 
 ## Usage
@@ -62,10 +64,10 @@ optional arguments:
 
 A simple python command line tool to parse WARC files.
 
-Custom HTML parser can be passed in using the option `--parser`; it should be a module that contains the `parse` method.
+Custom HTML parser can be passed in using the option `--parser`; it should be a module that implements `parse(filename, html_body)`.
 
 ## Examples
-```./warc-parser.py /Users/abc/input /Users/abc/output```
+```./warc-parser.py /Users/abc/input /Users/abc/output --parser parser-nytimes```
 
 ```./warc-parser.py /Users/abc/input /Users/abc/output -p 4``` (using 4 parallel processes)
 
