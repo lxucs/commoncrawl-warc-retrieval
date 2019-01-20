@@ -9,7 +9,7 @@ import errno
 
 DIR_WARC = None
 DIR_OUTPUT = None
-PARSER = None
+PARSER = None  # the module that implements parse(filename, html_body)
 
 
 def get_html(warcfile):
@@ -43,15 +43,14 @@ def get_html(warcfile):
             return None
 
 
-def parse_html(filename, html_body, parser):
+def parse_html(filename, html_body):
     """
     Parse HTML body.
     :param filename: the name of the WARC file
     :param html_body: string of HTML from the WARC file
-    :param parser: the module that contains parse(filename, html_body)
     :return: None, or string of parsed result
     """
-    import_module(parser)
+    parser = import_module(PARSER)
     result = parser.parse(filename, html_body)
     if result is None:
         logging.error('Abort %s: error when parsing html' % filename)
