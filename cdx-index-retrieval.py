@@ -31,7 +31,7 @@ def retrieve_indexed_text(index):
 
 def do_work(dir_index, num_processes):
     """
-    :param dir_index: path of directory containing index files from cdx-index-filter
+    :param dir_index: path of directory containing index files
     :param num_processes: the number of processes to use
     :return:
     """
@@ -39,7 +39,8 @@ def do_work(dir_index, num_processes):
     for idx_file in listdir(dir_index):
         if not idx_file.startswith('.'):
             with open(join(dir_index, idx_file), 'r') as f:
-                for index in json.load(f):
+                for line in f:
+                    index = json.load(line)
                     key = index['url'][index['url'].find('://'):]
                     dict_indices[key] = index
 
