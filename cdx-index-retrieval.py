@@ -40,7 +40,7 @@ def do_work(dir_index, num_processes):
         if not idx_file.startswith('.'):
             with open(join(dir_index, idx_file), 'r') as f:
                 for line in f:
-                    index = json.load(line)
+                    index = json.loads(line)
                     key = index['url'][index['url'].find('://'):]
                     dict_indices[key] = index
 
