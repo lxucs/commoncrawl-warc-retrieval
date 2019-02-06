@@ -21,7 +21,7 @@ def retrieve_indexed_text(index):
         r = requests.get(URL_PREFIX + index['filename'],
                          headers={'Range': 'bytes=%d-%d' % (byte_start, byte_end)})
 
-        name_output = index['url'][(index['url'].find(URL_STRIP) + len(URL_STRIP)):].replace('/', '-')
+        name_output = index['url'][(index['url'].find(URL_STRIP) + len(URL_STRIP)):].replace('/', '-') + '.warc'
         with open(join(DIR_OUTPUT, name_output), 'wb') as f:
             f.write(zlib.decompress(r.content, 32 + zlib.MAX_WBITS))
         logging.info('Finished retrieving indexed text ' + name_output)
@@ -31,7 +31,7 @@ def retrieve_indexed_text(index):
 
 def do_work(dir_index, num_processes):
     """
-    :param dir_index: path of directory containing index files from cdx-index-filter
+    :param dir_index: path of directory containing index files
     :param num_processes: the number of processes to use
     :return:
     """
@@ -39,7 +39,8 @@ def do_work(dir_index, num_processes):
     for idx_file in listdir(dir_index):
         if not idx_file.startswith('.'):
             with open(join(dir_index, idx_file), 'r') as f:
-                for index in json.load(f):
+                for line in f:
+                    index = json.loads(line)
                     key = index['url'][index['url'].find('://'):]
                     dict_indices[key] = index
 
