@@ -66,7 +66,7 @@ def process_warc(warcfile):
         if result is None:
             return
 
-        with open(join(DIR_OUTPUT, warcfile), 'w') as f:
+        with open(join(DIR_OUTPUT, warcfile + '.txt'), 'w') as f:
             f.write(result)
             logging.info('Finished parsing %s' % warcfile)
 
