@@ -26,7 +26,7 @@ def filter_entry(entry: json, url_pattern):
 def filter_file(path_input, url_pattern: str, path_output):
     url_pattern = re.compile(url_pattern)
     with open(path_input, 'r') as fin:
-        with open(path_output, 'wb') as fout:
+        with open(path_output, 'a') as fout:
             for line in fin:
                 entry = json.loads(line)
                 filtered = filter_entry(entry, url_pattern)
