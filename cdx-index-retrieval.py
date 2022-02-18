@@ -40,10 +40,20 @@ def do_work(dir_index, num_processes):
         if not idx_file.startswith('.'):
             with open(join(dir_index, idx_file), 'r') as f:
                 for line in f:
-                    index = json.loads(line)
+                    try:
+                        index = json.loads(line)
+                    except:
+                        continue
                     key = index['url'][index['url'].find('://'):]
                     dict_indices[key] = index
-
+                if len(dict_indices) > 1000000:
+                    indices = dict_indices.values()
+                    logging.info('Start to retrieve %d indexed text in total' % len(indices))
+                    with Pool(processes=num_processes) as pool:
+                        pool.map(retrieve_indexed_text, indices)
+                    logging.info('Finished retrieving all %d indexed text' % len(indices))
+                    dict_indices = {}
+                    
     indices = dict_indices.values()
     logging.info('Start to retrieve %d indexed text in total' % len(indices))
     with Pool(processes=num_processes) as pool:
